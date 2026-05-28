@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <title>六十甲子</title>
+    <style>
+        :root {
+            --primary-red: #a82828;
+            --dark-red: #6b0000;
+            --primary-gold: #cbae64;
+            --gold-light:#e3cd9c;
+            --bg-paper: #f8f3e9;
+            --text-main: #252525;
+            --text-secondary: #525252;
+            --border-radius: 12px;
+            --shadow-soft: 0 3px 12px rgba(62, 36, 16, 0.06);
+        }
+
+        * {
+            box-sizing: border-box; /* 全局盒模型，防止边框撑大盒子 */
+            margin: 0;
+            padding: 0;
+            font-family: "Kaiti", "STKaiti", "楷体", serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #ebe4d6;
+            background-image: 
+                radial-gradient(#ddd2bf 0.8px, transparent 1px);
+            background-position: 0 0;
+            background-size: 46px 46px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            opacity: 0;
+            animation: pageIntro 1.4s cubic-bezier(0.22,1,0.2,1) forwards;
+        }
+        @keyframes pageIntro{
+            0%{opacity:0;transform:translateY(18px);filter:blur(2px);}
+            100%{opacity:1;transform:translateY(0);filter:blur(0);}
+        }
+        body::after{
+            content:"隨安";
+            position:fixed;
+            right:28px;
+            bottom:22px;
+            color:#cbae642b;
+            font-size:29px;
+            transform:rotate(-12deg);
+            z-index:1;
+            pointer-events: none;
+            letter-spacing:5px;
+            font-weight:bold;
+            animation:floatSlow 5s ease-in-out infinite;
+            animation-delay: 1.6s;
+        }
+        @keyframes floatSlow{
+            0%,100%{transform: rotate(-12deg) translateY(0);}
+            50%{transform: rotate(-12deg) translateY(-3px);}
+        }
+
+        .container {
+            width: 100%;
+            max-width: 660px;
+            background: #f9f4ec;
+            border: 2px solid var(--primary-gold);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-soft);
+            padding: 32px;
+            text-align: center;
+            position: relative;
+            z-index:2;
+            background-image: linear-gradient(140deg,#faf6f0,#f4ede2);
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid var(--primary-red);
+            pointer-events: none;
+            border-radius: 7px;
+        }
+
+        header h1 {
+            color: var(--primary-red);
+            font-size: 2.2rem;
+            letter-spacing: 5px;
+            margin-bottom: 6px;
+            font-weight:bold;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 26px;
+            background: rgba(255,255,255,0.52);
+            padding: 16px;
+            border-radius: 9px;
+            border: 1px dashed var(--primary-gold);
+        }
+
+        .search-input {
+            padding: 11px 16px;
+            border: 1px solid #c2b4a4;
+            border-radius: 6px;
+            width: 60%;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.35s cubic-bezier(0.22,1,0.2,1);
+            background: #fffef9;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 5px #b7252733;
+        }
+
+        .search-btn {
+            padding: 11px 20px;
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            transition: 0.35s cubic-bezier(0.22,1,0.2,1);
+        }
+        .search-btn:active{
+            transform: scale(0.96);
+        }
+
+        .search-btn:hover {
+            background: var(--dark-red);
+        }
+
+        .lot-stage {
+            height: 168px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            perspective: 1100px;
+            position: relative;
+        }
+
+        .egg-text,.love-sentence{
+            display:block;
+            margin-top:12px;
+            font-size:1.12rem;
+            color:#a82828;
+            letter-spacing:4px;
+            opacity:0;
+            transform: scale(0.95);
+            transition:0.35s cubic-bezier(0.22,1,0.2,1);
+            animation:heartBeat 4.6s ease-in-out infinite;
+            line-height: 1.55;
+            border: none;
+            background: transparent;
+        }
+        .egg-text.show,.love-sentence.show{
+            opacity:1;
+            transform: scale(1);
+        }
+        @keyframes heartBeat{
+            0%,100%{transform:scale(1);}
+            50%{transform:scale(1.015);}
+        }
+
+        .result-card {
+            background: #ffffff;
+            padding: 18px 28px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(45,28,12,0.05);
+            opacity: 0;
+            transform: scale(0.92);
+            transition: all 0.45s cubic-bezier(0.25, 1, 0.22, 1);
+            position: absolute;
+            z-index: 2;
+            width: 86%;
+            height: 130px;
+            border: 1px solid #cbae64;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .result-card::after{
+            content:"";
+            position:absolute;
+            inset:3px;
+            border:0.7px solid #a82828;
+            border-radius:6px;
+            pointer-events:none;
+        }
+
+        .result-card.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hide-info{
+            display: none !important;
+        }
+
+        .ganzhi-text {
+            font-size: 2.9rem;
+            color: var(--primary-red);
+            font-weight: bold;
+            display: block;
+            letter-spacing: 4px;
+            margin-bottom: 4px;
+        }
+
+        .wuxing-text {
+            font-size: 1rem;
+            color: #fff;
+            background: var(--primary-red);
+            padding: 2px 12px;
+            border-radius: 22px;
+            display: inline-block;
+            margin: 6px 0;
+        }
+        
+        .year-tag {
+            font-size: 0.88rem;
+            color: #707070;
+            letter-spacing: 1px;
+        }
+
+        .lot-pot {
+            width: 92px;
+            height: 132px;
+            background: linear-gradient(155deg,#3b1e14,#623316,#3b1e14);
+            border-radius: 10px 10px 42px 42px;
+            border: 1.2px solid var(--primary-gold);
+            position: relative;
+            box-shadow: inset 0 -12px 24px rgba(0,0,0,0.35);
+        }
+        .lot-pot.shaking {
+            animation:shakeAll 0.36s infinite ease-in-out;
+        }
+        @keyframes shakeAll{
+            0% { transform: rotate(0deg) translateY(0); }
+            33% { transform: rotate(2deg) translateY(-2px); }
+            66% { transform: rotate(-2deg) translateY(1px); }
+            100% { transform: rotate(0deg) translateY(0); }
+        }
+
+        .lot-stick {
+            width: 7px;
+            height: 110px;
+            background: linear-gradient(180deg,#fff8ee,#e9d9c0);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 0.8px solid #d4af37;
+            border-radius: 2px;
+        }
+
+        .btn-group{
+            display:flex;
+            gap:14px;
+            justify-content:center;
+        }
+        .btn-draw {
+            background: linear-gradient(to bottom, #b92e2e, #7c0a0a);
+            color: var(--primary-gold);
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.35rem;
+            border-radius: 44px;
+            cursor: pointer;
+            box-shadow: 0 4px 7px rgba(0,0,0,0.12);
+            transition: 0.35s cubic-bezier(0.22,1,0.2,1);
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+        .btn-draw:active{
+            transform: scale(0.95) translateY(1px);
+        }
+        .btn-reset{
+            background:linear-gradient(to bottom,#927a49,#725c36);
+            color:#f8f0dd;
+            border:none;
+            padding: 12px 26px;
+            border-radius: 44px;
+            font-size:1.05rem;
+            cursor:pointer;
+            letter-spacing:2px;
+            transition: 0.35s cubic-bezier(0.22,1,0.2,1);
+        }
+        .btn-reset:active{
+            transform: scale(0.95) translateY(1px);
+        }
+
+        .btn-draw:hover,.btn-reset:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.07);
+        }
+        
+        .btn-draw:disabled {
+            background: #b5b5b5;
+            color: #828282;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg,#472d16,#372311);
+            color: var(--gold-light);
+            padding: 11px 24px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.35s cubic-bezier(0.22,1,0.2,1);
+            letter-spacing:1.2px;
+            border:1px solid #cbae6430;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 480px) {
+            .container{padding:26px 18px;}
+            .search-input { width: 54%; }
+            header h1{font-size:1.9rem;}
+            .btn-group{flex-wrap:wrap;}
+            .egg-text,.love-sentence{margin-top:8px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>六十甲子</h1>
+    </header>
+
+    <main>
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="输入年份｜干支">
+            <button id="searchBtn" class="search-btn">查询</button>
+        </div>
+
+        <div class="lot-stage">
+            <div id="lotPot" class="lot-pot">
+                <div class="lot-stick"></div>
+                <div class="lot-stick" style="left: 44%; transform: translateX(-50%) scale(0.88);"></div>
+                <div class="lot-stick" style="left: 56%; transform: translateX(-50%) scale(0.94);"></div>
+            </div>
+
+            <div id="resultCard" class="result-card">
+                <span id="ganzhiResult" class="ganzhi-text">--</span>
+                <span id="wuxingResult" class="wuxing-text">--</span>
+                <span id="yearResult" class="year-tag">--</span>
+                <span class="egg-text" id="loveEgg">我爱你</span>
+                <span class="love-sentence" id="sentenceText"></span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="drawBtn" class="btn-draw">抽签</button>
+            <button id="resetBtn" class="btn-reset">重置</button>
+        </div>
+
+    </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    const tiangan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const dizhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+    const nayin = [
+        "海中金", "海中金", "炉中火", "炉中火", "大林木", "大林木", "路旁土", "路旁土", "剑锋金", "剑锋金",
+        "山头火", "山头火", "涧下水", "涧下水", "城头土", "城头土", "白蜡金", "白蜡金", "杨柳木", "杨柳木",
+        "泉中水", "泉中水", "屋上土", "屋上土", "霹雳火", "霹雳火", "松柏木", "松柏木", "长流水", "长流水",
+        "砂中金", "砂中金", "山下火", "山下火", "平地木", "平地木", "壁上土", "壁上土", "金箔金", "金箔金",
+        "覆灯火", "覆灯火", "天河水", "天河水", "大驿土", "大驿土", "钗钏金", "钗钏金", "桑柘木", "桑柘木",
+        "大溪水", "大溪水", "沙中土", "沙中土", "天上火", "天上火", "石榴木", "石榴木", "大海水", "大海水"
+    ];
+
+    // 共计100条情话 内含三条专属定制文案
+    const loveWords = [
+        "林晓燕，我喜欢你",
+        "我爱你晓晓",
+        "晓燕最棒了",
+        "世间万般风月，皆不及你",
+        "山野万里，我满心皆是于你",
+        "岁岁年年，愿长久相伴",
+        "入目山河，唯独钟意一人",
+        "清风寄相思，岁岁念安好",
+        "浮生皆过客，唯你绾我心",
+        "承蒙相逢，余生万般温柔予你",
+        "人间烟火寥寥，偏爱岁岁随安",
+        "我所有的温柔，全部都赠予你",
+        "不需要奔赴山海，我永远偏爱你",
+        "人海茫茫，有幸能够遇见",
+        "往后朝夕，岁岁都不负你",
+        "心动从来短暂，偏爱会长久",
+        "平平淡淡的日子，慢慢喜欢你",
+        "我的私心，是往后一直有你",
+        "偷偷珍藏心底，长久暗自心动",
+        "温柔赠予人间，浪漫唯独予你",
+        "遇见之后，便再也无心旁人",
+        "山河平平无奇，唯独你最耀眼",
+        "我甘愿沉沦在对你的温柔里",
+        "烟火浮生漫漫，我只倾心于你",
+        "温柔且长情，余生皆是期许",
+        "不必惊艳时光，你自有温柔",
+        "所有细碎美好，全都赠予你",
+        "满目星河璀璨，不如你半分眉眼",
+        "此生碌碌众生，唯独对你情深",
+        "春风十里归途，满心皆是晓晓",
+        "心动止于岁月，偏爱永远予你",
+        "三生有幸相遇，此生不负佳人",
+        "人间万般温柔，唯独倾心晓燕",
+        "晚风岁岁悠长，我在岁岁念你",
+        "山河更迭岁岁，我的爱意不变",
+        "有幸与你相逢，便是此生圆满",
+        "我携漫天星辰，以此赠予佳人",
+        "岁月缓缓前行，我慢慢偏爱你",
+        "心底常驻一人，名字便是晓燕",
+        "风月皆是过客，唯有你是归宿",
+        "一念风起思君，一念花落念你",
+        "余生漫漫长路，只想与你同行",
+        "世间所有偏爱，尽数归于于你",
+        "清风明月如故，我亦如故喜欢你",
+        "繁华人间百态，我只钟情于你",
+        "温柔沦陷予你，从此别无其二",
+        "朝朝暮暮思念，岁岁心心念念",
+        "你是人间理想，亦是此生偏爱",
+        "落日沉溺暮色，我沉溺于你",
+        "山河万里荒芜，唯有你是救赎",
+        "万般人间烟火，都比不上你",
+        "我的满心欢喜，从头到尾是你",
+        "此生风月无恙，唯独钟情晓燕",
+        "光阴缓缓流逝，爱意经久不衰",
+        "人海何其拥挤，还好我遇见你",
+        "把所有浪漫温柔，统统留给你",
+        "心底万般情愫，全部只为你生",
+        "晚风藏尽爱意，我藏好喜欢你",
+        "不负人间风月，唯独不负于你",
+        "岁岁清风如故，我岁岁偏爱你",
+        "你眉眼皆温柔，偷走我满心欢喜",
+        "此生不问归途，只愿钟情一人",
+        "星辰坠入深海，我坠入温柔的你",
+        "平淡烟火日常，因为你才温柔",
+        "相思藏于岁月，深情藏于余生",
+        "何其幸运今生，能够邂逅晓燕",
+        "往后风霜岁月，我都会守护你",
+        "爱意无需喧哗，默默长久偏爱",
+        "人间朝起暮落，我自始终念你",
+        "清风难解相思，唯有你可慰藉",
+        "余生清风作伴，朝夕与你相守",
+        "我于红尘俗世，独钟你一人",
+        "所有人间旖旎，皆比不上佳人",
+        "时光温柔绵长，我好好爱着你",
+        "心动没有期限，喜欢永不落幕",
+        "山河满目清冷，唯独你最温柔",
+        "浅浅浮生一梦，深深一世钟情",
+        "晚风邮寄思念，岁岁挂念晓燕",
+        "人海浮沉万千，初心只为你留",
+        "独享一份温柔，单单赠予晓晓",
+        "岁月温柔以待，我好好偏爱你",
+        "一眼怦然心动，自此万年难忘",
+        "红尘来来往往，我只守候于你",
+        "心底漫漫相思，岁岁为你绵延",
+        "你自带万般温柔，治愈我的所有",
+        "奔赴一场偏爱，余生只为你来",
+        "月色温柔倾城，不及你半分温柔",
+        "人间值得所有，只因身边有你",
+        "情愫深埋心底，岁岁长久不渝",
+        "朝看繁花暮色，暮念心上之人",
+        "此生万般所求，不过岁岁有你",
+        "温柔浸透流年，爱意贯穿朝夕",
+        "烟火浅度余生，痴心永付晓燕",
+        "世间温柔万千，我独偏爱其一",
+        "流年烟火不惊，满心唯有佳人",
+        "爱意岁岁常青，喜欢永远长存",
+        "承蒙世间眷顾，让我遇见了你",
+        "清风揽尽月色，我揽满心的你"
+    ];
+
+    const jiaziList = [];
+    for (let i = 0; i < 60; i++) {
+        jiaziList.push({
+            name: tiangan[i % 10] + dizhi[i % 12],
+            nayin: nayin[i]
+        });
+    }
+
+    function getJiaziIndexByYear(year) {
+        let standard = (year - 4) % 60;
+        if(standard < 0) standard += 60;
+        return standard;
+    }
+    function getYearByJiaziIndex(index) {
+        const currentYear = new Date().getFullYear();
+        const currentOffset = getJiaziIndexByYear(currentYear);
+        let diff = index - currentOffset;
+        while (diff <= -30) diff += 60;
+        while (diff > 30) diff -= 60;
+        return currentYear + diff;
+    }
+
+    const drawBtn = document.getElementById('drawBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const lotPot = document.getElementById('lotPot');
+    const resultCard = document.getElementById('resultCard');
+    const ganzhiResult = document.getElementById('ganzhiResult');
+    const wuxingResult = document.getElementById('wuxingResult');
+    const yearResult = document.getElementById('yearResult');
+    const loveEgg = document.getElementById('loveEgg');
+    const sentenceText = document.getElementById('sentenceText');
+    const toast = document.getElementById('toast');
+
+    let isAnimating = false;
+
+    searchInput.addEventListener("input",function(){
+        let val = this.value.trim();
+        if(val === "随安"){
+            loveEgg.classList.add("show");
+            sentenceText.classList.remove("show");
+            ganzhiResult.classList.add('hide-info');
+            wuxingResult.classList.add('hide-info');
+            yearResult.classList.add('hide-info');
+        }else{
+            loveEgg.classList.remove("show");
+            sentenceText.classList.remove("show");
+            ganzhiResult.classList.remove('hide-info');
+            wuxingResult.classList.remove('hide-info');
+            yearResult.classList.remove('hide-info');
+        }
+    })
+
+    function showResult(data, yearStr) {
+        lotPot.style.display = 'none';
+        ganzhiResult.textContent = data.name;
+        wuxingResult.textContent = data.nayin;
+        yearResult.textContent = yearStr;
+        ganzhiResult.classList.remove('hide-info');
+        wuxingResult.classList.remove('hide-info');
+        yearResult.classList.remove('hide-info');
+        loveEgg.classList.remove('show');
+        sentenceText.classList.remove('show');
+        resultCard.classList.add('active');
+    }
+
+    resetBtn.onclick = function(){
+        resultCard.classList.remove("active");
+        lotPot.style.display="flex";
+        ganzhiResult.innerText="--";
+        wuxingResult.innerText="--";
+        yearResult.innerText="--";
+        loveEgg.classList.remove("show");
+        sentenceText.classList.remove("show");
+        ganzhiResult.classList.remove('hide-info');
+        wuxingResult.classList.remove('hide-info');
+        yearResult.classList.remove('hide-info');
+        searchInput.value = "";
+        searchInput.blur();
+    }
+
+    drawBtn.addEventListener('click', () => {
+        if (isAnimating) return;
+        isAnimating = true;
+        resultCard.classList.remove('active');
+        drawBtn.disabled = true;
+        lotPot.style.display = 'block';
+        lotPot.classList.add('shaking');
+        setTimeout(() => {
+            lotPot.classList.remove('shaking');
+            let ran = Math.floor(Math.random()*60);
+            let data = jiaziList[ran];
+            let y = getYearByJiaziIndex(ran);
+            showResult(data, `对应相近流年：${y}年`);
+            drawBtn.disabled = false;
+            isAnimating = false;
+        },880);
+    });
+
+    function handleSearch() {
+        let val = searchInput.value.trim().replace(/\s+/g,'');
+        if(val === '随安'){
+            let randomLove = loveWords[Math.floor(Math.random() * loveWords.length)];
+            sentenceText.innerText = randomLove;
+            sentenceText.classList.add('show');
+            loveEgg.classList.remove('show');
+            ganzhiResult.classList.add('hide-info');
+            wuxingResult.classList.add('hide-info');
+            yearResult.classList.add('hide-info');
+            lotPot.style.display = 'none';
+            resultCard.classList.add('active');
+            return;
+        }
+        if(!val){showToast("请输入查询内容");return;}
+        let yearNum = parseInt(val);
+        let data,ytxt;
+        if(!isNaN(yearNum)){
+            let i = getJiaziIndexByYear(yearNum);
+            data = jiaziList[i];
+            ytxt = `对应相近流年：${yearNum}年`;
+        }else{
+            let idx = jiaziList.findIndex(x=>x.name===val);
+            if(idx===-1){showToast("干支输入错误");return;}
+            data = jiaziList[idx];
+            let near = getYearByJiaziIndex(idx);
+            ytxt = `对应相近流年：${near}年`;
+        }
+        isAnimating = false;
+        lotPot.classList.remove('shaking');
+        showResult(data,ytxt);
+    }
+
+    searchBtn.addEventListener('click',handleSearch);
+    searchInput.addEventListener('keypress',e=>e.key==="Enter"&&handleSearch());
+
+    function showToast(msg){
+        toast.innerText=msg;
+        toast.classList.add("show");
+        setTimeout(()=>toast.classList.remove("show"),2000);
+    }
+
+    window.onload = function(){
+        lotPot.style.display='flex';
+        resultCard.classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
